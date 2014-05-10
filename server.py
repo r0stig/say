@@ -15,6 +15,7 @@ PATH = './static/'
 
 #Constants of your choice
 LANGUAGE = 'en' # language for speech (en = English)
+IP = "192.168.101.178"             #Sonos player to use
 
 
 @app.route('/say/<text>', methods=['GET'])
@@ -23,14 +24,19 @@ def say(text):
     if ok:
         print "Created file.."
         # Play the URL...
-        #info = zp.get_current_track_info()
-        Timer(3, resume_queue, ()).start()
-        # Sleep for info.duration (shedelue)
-        # after sleep
+        zp = SoCo(IP)
+        cur_info = zp.get_current_track_info()
+        zp.play_uri("http://192.168.100.123:5000/static/speech.mp3")
+        speech_info = zp.get_current_track_info()
+        duration = speech_info['duration']
+        Timer(duration, resume_queue, (zp, cur_info)).start()
 
-    return ""
-
-def resume_queue():
+def resume_queue(zp, info):
+    position = info['position']
+    pl_position = info['playlist_position']
+    zp.play_from_queue(pl_position)
+    zp.play()
+    zp.seek(position)
     print "resumes queue"
 
 
