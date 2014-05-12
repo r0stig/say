@@ -19,6 +19,7 @@ PATH = './static/'
 LANGUAGE = 'en' # language for speech (en = English)
 IP = "192.168.1.90"             #Sonos player to use
 LAN_IP = "192.168.1.29"         # Local area ip that sonos can reach
+PORT = 5000
 
 
 @app.route('/say/<text>', methods=['GET'])
@@ -28,13 +29,13 @@ def say(text):
         zp = SoCo(IP)
         cur_info = zp.get_current_track_info()
         state = zp.get_current_transport_info()
-        zp.play_uri("http://{0}:5000/static/speech.mp3".format("192.168.1.29"))
+        zp.play_uri("http://{0}:5000/static/speech.mp3".format(LAN_IP))
         if (state['current_transport_state'] == 'PLAYING'):
             audio = MP3("./static/speech.mp3")
             speech_info = zp.get_current_track_info()
             duration = speech_info['duration']
             Timer(audio.info.length, resume_queue, (zp, cur_info)).start()
-    return ""
+    return "OK!"
 
 def resume_queue(zp, info):
     position = info['position']
